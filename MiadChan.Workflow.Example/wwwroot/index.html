@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+  <script src="dagre-d3.js"></script>
+
+  <style id="css">
+    body {
+      font: 300 14px 'Helvetica Neue', Helvetica;
+      background: cornflowerblue;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+    }
+
+    .node rect,
+    .node circle,
+    .node ellipse {
+      stroke: #333;
+      fill: #fff;
+      stroke-width: 1px;
+    }
+
+    .edgePath path {
+      stroke: #333;
+      fill: #333;
+      stroke-width: 1.5px;
+    }
+
+    .workflow-container {
+      background-color: white;
+      width: 1200px;
+      height: 900px;
+      margin-left: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="workflow" class="workflow-container">
+    <svg width="1200" height="900">
+      <g /></svg>
+  </div>
+
+  <script src="main.js"></script>
+
+</body>
+
+</html>

@@ -10,6 +10,7 @@ namespace Maidchan.Workflow
         {
             serviceCollection.AddWorkflow();
             serviceCollection.AddWorkflowDSL();
+            serviceCollection.AddTransient<IWorkflowManager, WorkflowManager>();
 
             return serviceCollection;
         }

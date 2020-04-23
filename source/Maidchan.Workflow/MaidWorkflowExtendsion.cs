@@ -1,3 +1,4 @@
+using Maidchan.Workflow.Storages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using WorkflowCore.Interface;
@@ -8,6 +9,7 @@ namespace Maidchan.Workflow
     {
         public static IServiceCollection AddMaidWorkflow(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddTransient<IGraphStore, GraphStore>();
             serviceCollection.AddWorkflow(x => x.UseSqlite(@"Data Source=database.db;", true));
             serviceCollection.AddWorkflowDSL();
             serviceCollection.AddTransient<IWorkflowManager, WorkflowManager>();

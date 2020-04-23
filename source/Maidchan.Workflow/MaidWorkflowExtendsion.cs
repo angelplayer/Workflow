@@ -8,7 +8,7 @@ namespace Maidchan.Workflow
     {
         public static IServiceCollection AddMaidWorkflow(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddWorkflow();
+            serviceCollection.AddWorkflow(x => x.UseSqlite(@"Data Source=database.db;", true));
             serviceCollection.AddWorkflowDSL();
             serviceCollection.AddTransient<IWorkflowManager, WorkflowManager>();
 

@@ -11,12 +11,14 @@ namespace Maidchan.Workflow
         private readonly IWorkflowController controller;
         private readonly IDefinitionLoader definitionLoader;
         private readonly IWorkflowRegistry registry;
+        private readonly IPersistenceProvider persistence;
 
-        public WorkflowManager(IWorkflowController controller, IDefinitionLoader definitionLoader, IWorkflowRegistry registry)
+        public WorkflowManager(IWorkflowController controller, IDefinitionLoader definitionLoader, IWorkflowRegistry registry, IPersistenceProvider persistence)
         {
             this.controller = controller;
             this.definitionLoader = definitionLoader;
             this.registry = registry;
+            this.persistence = persistence;
         }
 
         public async Task Execute(string workflowId, object data = null, string reference = null)

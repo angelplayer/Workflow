@@ -34,7 +34,7 @@ namespace MiadChan.Workflow.Example.Controllers
             try
             {
                 // Load json from file for temporary
-                var json = await System.IO.File.ReadAllTextAsync("workflow.json");
+                var json = await System.IO.File.ReadAllTextAsync("workflow2.json");
                 var workflowId = workflow.SaveWorkflow(json);
 
                 return Ok(workflowId.Result);

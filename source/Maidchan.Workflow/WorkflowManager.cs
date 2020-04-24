@@ -28,7 +28,7 @@ namespace Maidchan.Workflow
     {
       try
       {
-        await controller.StartWorkflow(workflowId);
+        await controller.StartWorkflow(workflowId, data, reference);
       }
       catch (WorkflowNotRegisteredException notRegister)
       {

@@ -1,6 +1,7 @@
 
 using System.Threading.Tasks;
 using Maidchan.Workflow;
+using Maidchan.Workflow.TaskType;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MiadChan.Workflow.Example.Controllers
@@ -22,7 +23,7 @@ namespace MiadChan.Workflow.Example.Controllers
         {
             try
             {
-                await workflowManager.Execute(processName);
+                await workflowManager.Execute(processName, new SampleModel() { App = "dotnet", Args = "--version", LogFile = "workflow/cli.logs" });
             }
             catch (WorkflowException ex)
             {

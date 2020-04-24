@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using Maidchan.Workflow;
 using Microsoft.AspNetCore.Mvc;
-using WorkflowCore.Interface;
-using WorkflowCore.Services.DefinitionStorage;
 
 namespace MiadChan.Workflow.Example.Controllers
 {

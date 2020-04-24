@@ -1,0 +1,30 @@
+{
+    "Id": "Workflow2",
+    "Version": 1,
+    "Nodes":[
+        {
+            "id": "1",
+            "kind": "task",
+            "Props": {
+                "App": "data.App",
+                "Params": "data.Args",
+                "TerminateOnError": "true"
+            }
+        },
+        {
+            "id": "2",
+            "kind": "task",
+            "Props": {
+                "Text": "data.Answer",
+                "Filepath": "data.LogFile"
+            }
+        }
+    ],
+    "edges":[
+       {
+           "uid": 1,
+           "from": "1",
+           "to": "2"
+       }
+    ]
+}

@@ -23,7 +23,8 @@ namespace MiadChan.Workflow.Example.Controllers
             var json = workflow.GetDefinition(processName);
 
             // Convert it Dagre-3d json data format
-            return Ok(json.Result);
+            string dagreObject = GraphTransformer.ConvertToDegreD3Object(json.Result);
+            return Ok(dagreObject);
         }
 
         [HttpPost("workflow")]

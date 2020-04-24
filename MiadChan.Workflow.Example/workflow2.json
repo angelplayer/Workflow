@@ -8,7 +8,8 @@
             "StepType": "Maidchan.Workflow.TaskType.ExecuteCommandLine, Maidchan.Workflow",
             "Inputs": {
                 "App": "data.App",
-                "Params": "data.Args"
+                "Params": "data.Args",
+                "TerminateOnError": "true"
             },
             "Outputs": {
                 "Answer": "step.OutputText"

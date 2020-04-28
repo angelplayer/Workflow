@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Collections.Generic;
 using System.Buffers;
+using System.IO;
 
 namespace MiadChan.Workflow.Example
 {
@@ -21,7 +22,7 @@ namespace MiadChan.Workflow.Example
             };
 
             
-            var output = new ArrayBufferWriter<byte>();
+            var output = new MemoryStream();
             using (var writer = new Utf8JsonWriter(output, options)) {
                 
                 JsonDocument document = JsonDocument.Parse(workflow);
@@ -81,7 +82,7 @@ namespace MiadChan.Workflow.Example
                 writer.Flush();
             }
             
-            return Encoding.UTF8.GetString(output.GetSpan());
+            return Encoding.UTF8.GetString(output.GetBuffer());
         }
     }
 }

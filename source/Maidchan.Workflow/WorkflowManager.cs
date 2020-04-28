@@ -4,6 +4,7 @@ using System.Text.Json;
 using WorkflowCore.Services.DefinitionStorage;
 using WorkflowCore.Exceptions;
 using Maidchan.Workflow.Storages;
+using Maidchan.Workflow.Exceptions;
 
 namespace Maidchan.Workflow
 {
@@ -28,7 +29,7 @@ namespace Maidchan.Workflow
     {
       try
       {
-        await controller.StartWorkflow(workflowId);
+        await controller.StartWorkflow(workflowId, data, reference);
       }
       catch (WorkflowNotRegisteredException notRegister)
       {

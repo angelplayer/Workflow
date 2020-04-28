@@ -1,11 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WorkflowCore.Interface;
-using System.Text.Json;
-using WorkflowCore.Services.DefinitionStorage;
-using WorkflowCore.Models;
-using Newtonsoft.Json;
 using Maidchan.Workflow;
 
 namespace MiadChan.Workflow.Example.Controllers
@@ -28,7 +23,8 @@ namespace MiadChan.Workflow.Example.Controllers
             var json = workflow.GetDefinition(processName);
 
             // Convert it Dagre-3d json data format
-            return Ok(json.Result);
+            string dagreObject = GraphTransformer.ConvertToDegreD3Object(json.Result);
+            return Ok(dagreObject);
         }
 
         [HttpPost("workflow")]
@@ -39,7 +35,7 @@ namespace MiadChan.Workflow.Example.Controllers
             try
             {
                 // Load json from file for temporary
-                var json = await System.IO.File.ReadAllTextAsync("workflow.json");
+                var json = await System.IO.File.ReadAllTextAsync("workflow2.json");
                 var workflowId = workflow.SaveWorkflow(json);
 
                 return Ok(workflowId.Result);

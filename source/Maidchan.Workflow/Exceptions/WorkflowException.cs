@@ -1,6 +1,6 @@
 using System;
 
-namespace Maidchan.Workflow
+namespace Maidchan.Workflow.Exceptions
 {
     public class WorkflowException : Exception
     {

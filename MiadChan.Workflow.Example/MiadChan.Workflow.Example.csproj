@@ -7,4 +7,8 @@
   <ItemGroup>
     <ProjectReference Include="../source/Maidchan.Workflow/Maidchan.Workflow.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
+  </ItemGroup>
 </Project>

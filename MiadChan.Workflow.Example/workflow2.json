@@ -1,0 +1,28 @@
+{
+    "Id": "Workflow2",
+    "Version": 1,
+    "DataType": "Maidchan.Workflow.TaskType.SampleModel, Maidchan.Workflow",
+    "Steps": [
+        {
+            "Id": "1",
+            "StepType": "Maidchan.Workflow.TaskType.ExecuteCommandLine, Maidchan.Workflow",
+            "Inputs": {
+                "App": "data.App",
+                "Params": "data.Args",
+                "TerminateOnError": "true"
+            },
+            "Outputs": {
+                "Answer": "step.OutputText"
+            },
+            "NextStepId": "2"
+        },
+        {
+            "Id": "2",
+            "StepType": "Maidchan.Workflow.TaskType.WriteToFile, Maidchan.Workflow",
+            "Inputs": {
+                "Text": "data.Answer",
+                "Filepath": "data.LogFile"
+            }
+        }
+    ]
+}

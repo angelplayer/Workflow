@@ -1,19 +1,26 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Maidchan.Workflow.Attributes;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
 namespace Maidchan.Workflow.TaskType
 {
+    [StepType("Execute commandline application")]
     public class ExecuteCommandLine : StepBody
     {
+        [Input(HelpText = "Absolute path to commandline application.")]
         public string App { get; set; }
+
+        [Input(HelpText = "Commandline parameter")]
         public string Params { get; set; }
+
+        [Input(DataKind.Boolean, "Terminate workflow in case of errors")]
         public bool TerminateOnError { get; set; }
 
         // output
-        public string OutputText { get; set; }
+        [Output] public string OutputText { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {

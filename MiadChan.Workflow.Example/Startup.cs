@@ -54,6 +54,9 @@ namespace MiadChan.Workflow.Example
 
       app.UseMaidWorkflow();
 
+      app.UseStaticFiles();
+      app.UseDefaultFiles();
+
       //app.UseHttpsRedirection();
 
       app.UseRouting();

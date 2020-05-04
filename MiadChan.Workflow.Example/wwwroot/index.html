@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+  <script src="dagre-d3.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="jquery.tipsy.js"></script>
+  <link href="tipsy.css" rel="stylesheet" type="text/css" />
+
+  <style id="css">
+    body {
+      font: 300 14px 'Helvetica Neue', Helvetica;
+      background: cornflowerblue;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+    }
+
+    .node rect,
+    .node circle,
+    .node ellipse {
+      stroke: #333;
+      fill: #fff;
+      stroke-width: 1px;
+    }
+
+    .edgePath path {
+      stroke: #333;
+      fill: #333;
+      stroke-width: 1.5px;
+    }
+
+    .workflow-container {
+      background-color: white;
+      width: 1200px;
+      height: 900px;
+      margin-left: 100px;
+    }
+
+    /* This styles the title of the tooltip */
+    .tipsy .name {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #60b1fc;
+      margin: 0;
+    }
+
+
+    .workflow-container {
+      display: flex;
+      flex-direction: row;
+    }
+
+    /* This styles the body of the tooltip */
+    .tipsy .description {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+
+<body>
+  <button id="button">Get Graph</button>
+  <div id="workflow" class="workflow-container">
+    <svg width="1200" height="900">
+      <g /></svg>
+  </div>
+
+  <script src="workflow.js"></script>
+  <script src="main.js"></script>
+
+  <script>
+    function getGraph() {
+
+    }
+
+  </script>
+
+</body>
+
+</html>

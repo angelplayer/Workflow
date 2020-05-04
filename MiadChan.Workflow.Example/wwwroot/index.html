@@ -8,9 +8,9 @@
 
   <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
   <script src="dagre-d3.js"></script>
-  <script type="text/javascript" src="https://code.jquery.com/jquery-1.6.2.min.js"></script> 
-    <script type="text/javascript" src="jquery.tipsy.js"></script>
-    <link href="tipsy.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="jquery.tipsy.js"></script>
+  <link href="tipsy.css" rel="stylesheet" type="text/css" />
 
   <style id="css">
     body {
@@ -46,17 +46,23 @@
     }
 
     /* This styles the title of the tooltip */
-.tipsy .name {
-  font-size: 1.5em;
-  font-weight: bold;
-  color: #60b1fc;
-  margin: 0;
-}
+    .tipsy .name {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #60b1fc;
+      margin: 0;
+    }
 
-/* This styles the body of the tooltip */
-.tipsy .description {
-  font-size: 1.2em;
-}
+
+    .workflow-container {
+      display: flex;
+      flex-direction: row;
+    }
+
+    /* This styles the body of the tooltip */
+    .tipsy .description {
+      font-size: 1.2em;
+    }
   </style>
 </head>
 
@@ -67,6 +73,7 @@
       <g /></svg>
   </div>
 
+  <script src="workflow.js"></script>
   <script src="main.js"></script>
 
   <script>

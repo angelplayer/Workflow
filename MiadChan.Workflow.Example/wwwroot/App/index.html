@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy hello world</title>
+    
+    <link rel="stylesheet" href="vis-network.min.css" />
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        #workflow {
+            height: 500px;
+        }
+
+        .layout {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+        }
+        .main {
+            width: calc(100% - 300px);
+        }
+        .side {
+            width: 300px;
+        }
+
+        .list li {
+            text-decoration: none;
+            display: block;
+            padding: 10px 5px 10px 5px;
+        }
+
+    </style>
+
+    <script src="vis-network.js"></script>
+    <script src="main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+           var workflow  = new Workflow({el: 'workflow'}); 
+        });
+    </script>
+</head>
+<body class="layout">
+    <main class="main">
+        <div id="workflow"></div>
+    </main>
+    <aside class="side">
+        <div id="panel"></div>
+    </aside>
+</body>
+</html>

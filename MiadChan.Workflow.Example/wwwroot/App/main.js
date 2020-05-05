@@ -5,9 +5,53 @@ function CreateUUID() {
     });
 }
 
+function createWidget(key, prop) {
+    let c = null;
+    if (prop.datatype === 'Text') {
+        c = document.createElement('input');
+        c.type = 'text';
+        c.className = 'c-group-control';
+    } else {
+        c = document.createElement('label');
+        c.className = 'c-group-control';
+        c.textContent = prop;
+    }
+
+    let label = document.createElement('label');
+    label.textContent = prop.name ?? key;
+    label.className = 'c-group-label';
+
+    let span = document.createElement('span');
+    span.className = 'sub';
+    span.textContent = prop.help ?? '';
+
+    let div = document.createElement('div');
+    div.className = 'c-group';
+    div.appendChild(label);
+    div.appendChild(c);
+    div.appendChild(span);
+
+    return div;
+}
+
+function makeControl(param) {
+    let control;
+    let label = document.createElement('label');
+    label.textContent = param.key;
+    if (param.kind == 'Task') {
+        control = document.createElement('input');
+        control.type = 'text';
+        control.value = param.value;
+    }
+
+    const div = document.createElement('div');
+    div.appendChild(label)
+    div.appendChild(control);
+    return div;
+}
+
 var PanelProps = function (el, network) {
     this.network = network;
-
 
     this.action = {
         name: '',
@@ -40,7 +84,7 @@ var PanelProps = function (el, network) {
         if (this.network.manipulation.inMode === 'addEdge') {
             this.network.disableEditMode();
         } else {
-            this.network.addEdgeMode();   
+            this.network.addEdgeMode();
         }
     }
 
@@ -54,21 +98,67 @@ PanelProps.prototype.init = function () {
     editButton.addEventListener('click', () => {
         this.editEdge();
     });
+    editButton.className = 'button-node';
     this.$el.appendChild(editButton);
 
     ['Start', 'Task', 'Decision', 'End'].forEach((value) => {
         let button = document.createElement('button');
         button.textContent = value;
+        button.className = 'button-node';
         button.addEventListener('click', () => { this.selectAction(value) });
         this.$el.append(button);
     });
+    let props = document.createElement('div');
+    props.id = 'props'
+    this.$el.append(props);
 }
+
+
+PanelProps.prototype.draw = function (graph) {
+    const element = document.getElementById('props');
+    element.innerHTML = '';
+    element.className = 'ranka';
+
+    let header = document.createElement('h3');
+    header.textContent = graph.label ?? '';
+
+    let p = document.createElement('p');
+    p.className = 'subtitle';
+    p.textContent = graph.description ?? '';
+
+    element.append(header);
+    element.append(p);
+
+    let propsContainer = document.createElement('div');
+
+    let params = graph.Props;
+    if (!params && (graph.to || graph.from)) {
+        params = { from: graph.from, to: graph.to };
+    }
+
+    if (!params) return;
+
+    Object.keys(params).map((k) => {
+        propsContainer.appendChild(createWidget(k, params[k]));
+    });
+    element.append(propsContainer);
+}
+
+
+
+
 
 
 var Workflow = function (settings) {
 
     // create an array with nodes
-    var nodes = new vis.DataSet([]);
+    var nodes = new vis.DataSet([
+        // { id: 1, label: "Node 1", kind: 'task', description: 'hello1', Props: [{ datatype: 'Text', name: 'File', help: 'Can I love you' }] },
+        // { id: 2, label: "Node 2", kind: 'task', description: 'hello2', Props: {} },
+        // { id: 3, label: "Node 3", kind: 'task', description: 'hello3', Props: {} },
+        // { id: 4, label: "Node 4", kind: 'task', description: 'hello4', Props: {} },
+        // { id: 5, label: "Node 5", kind: 'task', description: 'hello5', Props: {} }
+    ]);
 
     // create an array with edges
     var edges = new vis.DataSet([]);
@@ -88,6 +178,7 @@ var Workflow = function (settings) {
         interaction: {
             hover: true,
             hoverConnectedEdges: false,
+            selectConnectedEdges: false,
         },
         manipulation: {
             initiallyActive: true,
@@ -148,6 +239,23 @@ var Workflow = function (settings) {
         }
     }
 
+    this.getNode = function (id) {
+        try {
+            return this.data.nodes.get(id);
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
+    this.getEdge = function (id) {
+        try {
+            return this.data.edges.get(id);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     this.removeNode = function (id) {
         try {
             this.data.nodes.remove({ id: id });
@@ -188,6 +296,18 @@ var Workflow = function (settings) {
             }
             this.$panel.clearAction();
         });
+
+        network.on('selectNode', (params) => {
+            let selected = network.getSelectedNodes();
+            let node = this.getNode(selected[0]);
+            this.$panel.draw(node);
+        });
+
+        network.on('selectEdge', (params) => {
+            let selected = network.getSelectedEdges();
+            let edge = this.getEdge(selected[0]);
+            this.$panel.draw(edge);
+        })
     }
 
     this.init();

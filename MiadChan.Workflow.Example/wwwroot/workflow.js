@@ -154,7 +154,6 @@ function createWidget(prop) {
 }
 
 WorkflowEditor.prototype.view = function (node) {
-  console.log(node);
   this.propsContainer.innerHTML = '';
   var props = node.props;
   Object.keys(props).map((k) => {

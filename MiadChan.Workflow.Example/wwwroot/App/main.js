@@ -5,16 +5,24 @@ function CreateUUID() {
     });
 }
 
-function createWidget(key, prop) {
+function createWidget(key, prop, updateCallback) {
     let c = null;
     if (prop.datatype === 'Text') {
         c = document.createElement('input');
         c.type = 'text';
         c.className = 'c-group-control';
+        c.value = prop.value;
+        c.onchange = (evt) => {
+            updateCallback('node', prop, evt.target.value);
+        }
     } else if (prop.datatype === 'Boolean') {
         c = document.createElement('input');
         c.type = 'checkbox';
         c.className = 'c-group-control'
+        c.value = prop.value;
+        c.onchange = (evt) => {
+            updateCallback('node', prop, evt.value);
+        }
      }
     else {
         c = document.createElement('label');
@@ -57,6 +65,9 @@ function makeControl(param) {
 
 var PanelProps = function (el, network) {
     this.network = network;
+
+    this.emitChangeNodeEvent = [];
+    this.emitChangeEdgeEvent = [];
 
     this.action = {
         name: '',
@@ -118,6 +129,21 @@ PanelProps.prototype.init = function () {
     this.$el.append(props);
 }
 
+PanelProps.prototype.emitChangeNode = function (id, key, value) {
+    this.emitChangeNodeEvent.forEach(cb => cb(id, key, value));
+}
+
+PanelProps.prototype.emitChangeEdge = function (id, key, value) {
+    this.emitChangeEdgeEvent.forEach(cb => cb(id, key, value));
+}
+
+PanelProps.prototype.on = function(eventName, callback) {
+    if (eventName === 'emitChangeNode') {
+        this.emitChangeNodeEvent.push(callback);
+    } else if (eventName === 'emitChangeEdge') {
+        this.emitChangeEdgeEvent.push(callback);
+    }
+}
 
 PanelProps.prototype.draw = function (graph) {
     const element = document.getElementById('props');
@@ -126,14 +152,33 @@ PanelProps.prototype.draw = function (graph) {
 
     if (!graph) return; // if no graph provide just clear the UI
 
-    let header = document.createElement('h3');
-    header.textContent = graph.label ?? '';
+    let goupHeader = document.createElement('div');
+    goupHeader.className = "c-group";
+    goupHeader.style = 'border-bottom: 1px solid white';
+    let labelHeader = document.createElement('label');
+    labelHeader.textContent = "Name";
+    labelHeader.className = 'c-group-label';
+    let header = document.createElement('input');
+    header.className = 'c-group-control';
+    header.type = 'text';
+    header.value = graph.label ?? '';
+    goupHeader.append(labelHeader);
+    goupHeader.append(header)
+
+    header.onchange = (evt) => {
+        if ((graph.to || graph.from)) {
+            this.emitChangeEdge(graph.id, 'label', evt.target.value);
+        } else {
+            this.emitChangeNode(graph.id, 'label', evt.target.value);
+        }
+    }
+
 
     let p = document.createElement('p');
     p.className = 'subtitle';
     p.textContent = graph.description ?? '';
 
-    element.append(header);
+    element.append(goupHeader);
     element.append(p);
 
     let propsContainer = document.createElement('div');
@@ -146,7 +191,13 @@ PanelProps.prototype.draw = function (graph) {
     if (!params) return;
 
     Object.keys(params).map((k) => {
-        propsContainer.appendChild(createWidget(k, params[k]));
+        propsContainer.appendChild(createWidget(k, params[k], (type, key, val) =>
+        {
+            if (type == 'node') { 
+                params[k].value = val;
+                this.emitChangeEdge(graph.id, 'Props', params);
+            }
+        }));
     });
     element.append(propsContainer);
 }
@@ -286,10 +337,41 @@ var Workflow = function (settings) {
         return newNode;
     }
 
+
+    this.updateNode = function (id, key, value) {
+        try {
+            this.data.nodes.update({
+                [key]: value,
+                id: id
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    this.updateEdge = function (id, key, value) {
+        try {
+            this.data.edges.update({
+                [key]: value,
+                id: id
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     this.init = function () {
         var network = new vis.Network(this.$container, this.data, this.options);
         this.$panel = new PanelProps('panel', network);
         this.$panel.init();
+
+        this.$panel.on('emitChangeNode', (id, key, value) => {
+            this.updateNode(id, key, value);
+        });
+
+        this.$panel.on('emitChangeEdge', (id, key, value) => {
+            this.updateEdge(id, key, value);
+        })
 
         this.loadData((data) => {
             this.data = {

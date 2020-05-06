@@ -46,7 +46,7 @@
 
         .ranka {
             font-family: 'Roboto Mono';
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .ranka h3,
@@ -74,14 +74,12 @@
 
         .c-group-label {
             flex-grow: 1;
-            width: 25%;
             font-weight: 400;
-            text-align: center;
+            text-align: left;
         }
 
         .c-group-control {
-            flex-grow: 2;
-            width: 75%;
+            flex-grow: 3;
             border: 1px solid rgba(128, 128, 128, .7);
         }
 
@@ -97,6 +95,7 @@
             font-style: italic;
             margin-top: 4px;
             margin-left: 15px;
+            width: 100%;
         }
 
         .button-node {
@@ -117,7 +116,7 @@
     <script src="main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var workflow = new Workflow({ el: 'workflow' });
+            var workflow = new Workflow({ el: 'workflow', connector: '/Graph/workflow/Workflow2' });
         });
     </script>
 </head>

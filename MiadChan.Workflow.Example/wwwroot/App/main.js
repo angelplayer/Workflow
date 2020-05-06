@@ -11,7 +11,12 @@ function createWidget(key, prop) {
         c = document.createElement('input');
         c.type = 'text';
         c.className = 'c-group-control';
-    } else {
+    } else if (prop.datatype === 'Boolean') {
+        c = document.createElement('input');
+        c.type = 'checkbox';
+        c.className = 'c-group-control'
+     }
+    else {
         c = document.createElement('label');
         c.className = 'c-group-control';
         c.textContent = prop;
@@ -119,6 +124,8 @@ PanelProps.prototype.draw = function (graph) {
     element.innerHTML = '';
     element.className = 'ranka';
 
+    if (!graph) return; // if no graph provide just clear the UI
+
     let header = document.createElement('h3');
     header.textContent = graph.label ?? '';
 
@@ -145,24 +152,7 @@ PanelProps.prototype.draw = function (graph) {
 }
 
 
-
-
-
-
 var Workflow = function (settings) {
-
-    // create an array with nodes
-    var nodes = new vis.DataSet([
-        // { id: 1, label: "Node 1", kind: 'task', description: 'hello1', Props: [{ datatype: 'Text', name: 'File', help: 'Can I love you' }] },
-        // { id: 2, label: "Node 2", kind: 'task', description: 'hello2', Props: {} },
-        // { id: 3, label: "Node 3", kind: 'task', description: 'hello3', Props: {} },
-        // { id: 4, label: "Node 4", kind: 'task', description: 'hello4', Props: {} },
-        // { id: 5, label: "Node 5", kind: 'task', description: 'hello5', Props: {} }
-    ]);
-
-    // create an array with edges
-    var edges = new vis.DataSet([]);
-
     this.createNode = function (name) {
         this.state.select(name);
     }
@@ -170,9 +160,9 @@ var Workflow = function (settings) {
     this.$panel = {};
 
     this.data = {
-        nodes: nodes,
-        edges: edges
-    };
+        nodes: new vis.DataSet([]),
+        edges: new vis.DataSet([])
+     };
 
     this.options = {
         interaction: {
@@ -181,7 +171,7 @@ var Workflow = function (settings) {
             selectConnectedEdges: false,
         },
         manipulation: {
-            initiallyActive: true,
+            initiallyActive: false,
             enabled: false,
             addNode: false,
             addEdge: true,
@@ -189,7 +179,7 @@ var Workflow = function (settings) {
             deleteEdge: false,
         },
         physics: {
-            enabled: false
+            enabled: true
         },
         edges: {
             arrows: {
@@ -217,11 +207,24 @@ var Workflow = function (settings) {
         }
     };
 
+    this.connectorUlr = settings.connector ?? '';
+
     this.$container = settings.el ? document.getElementById(settings.el) : document.getElementById('workflow');
 
     if (!this.$container) {
         throw "Workflow container is not found";
     };
+
+    this.loadData = (callback) => {
+        if (this.connect && this.connectorUlr !== '') {
+            fetch(this.connectorUlr)
+                .then(res => res.json())
+                .then((data) => {
+                    callback({ nodes: data.nodes, edges: data.edges});
+                })
+                .catch(err => console.log(err));
+        }
+    }
 
     this.addNode = function (node) {
         try {
@@ -288,6 +291,15 @@ var Workflow = function (settings) {
         this.$panel = new PanelProps('panel', network);
         this.$panel.init();
 
+        this.loadData((data) => {
+            this.data = {
+                nodes: new vis.DataSet(data.nodes),
+                edges: new vis.DataSet(data.edges)
+            }
+
+            network.setData(this.data);
+        });
+
         network.on('click', (params) => {
             if (this.$panel.getLastAction() == 'selected') {
                 let id = CreateUUID();
@@ -307,7 +319,14 @@ var Workflow = function (settings) {
             let selected = network.getSelectedEdges();
             let edge = this.getEdge(selected[0]);
             this.$panel.draw(edge);
-        })
+        });
+
+        this.$container.addEventListener('keyup', (evt) => {
+            if (evt.key === 'Delete') {
+                network.deleteSelected();
+                this.$panel.draw();
+            };
+        });
     }
 
     this.init();

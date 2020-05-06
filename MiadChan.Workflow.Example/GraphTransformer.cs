@@ -34,16 +34,17 @@ namespace MiadChan.Workflow.Example
 
                 string id = document.RootElement.GetProperty("Id").GetString();
                 int version = document.RootElement.GetProperty("Version").GetInt16();
+                
 
                 writer.WriteStartObject();
 
-                writer.WritePropertyName("Id");
+                writer.WritePropertyName("id");
                 writer.WriteStringValue(id);
 
-                writer.WritePropertyName("Id");
+                writer.WritePropertyName("version");
                 writer.WriteNumberValue(version);
 
-                writer.WritePropertyName("Nodes");
+                writer.WritePropertyName("nodes");
                 writer.WriteStartArray();
 
                 var steps = document.RootElement.GetProperty("Steps").EnumerateArray();
@@ -51,12 +52,16 @@ namespace MiadChan.Workflow.Example
                 {
                     writer.WriteStartObject();
 
-                    writer.WritePropertyName("Id");
+                    // Consider capitalize problem
+                    writer.WritePropertyName("id");
                     var stepId = step.GetProperty("Id").GetString();
                     writer.WriteStringValue(stepId);
 
                     writer.WritePropertyName("kind");
                     writer.WriteStringValue("task");
+
+                     writer.WritePropertyName("label");
+                    writer.WriteStringValue("Task " + stepId);
 
                     var stepType = step.GetProperty("StepType").GetString();
                     WriteStepTypeParams(writer, stepType);

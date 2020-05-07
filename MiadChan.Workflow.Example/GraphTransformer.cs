@@ -64,6 +64,9 @@ namespace MiadChan.Workflow.Example
                     writer.WriteStringValue("Task " + stepId);
 
                     var stepType = step.GetProperty("StepType").GetString();
+                    writer.WritePropertyName("stepType");
+                    writer.WriteStringValue(stepType);
+
                     WriteStepTypeParams(writer, stepType, document);
 
                     if (step.TryGetProperty("NextStepId", out var to))
@@ -96,7 +99,7 @@ namespace MiadChan.Workflow.Example
             return Encoding.UTF8.GetString(output.GetBuffer());
         }
 
-        public static void WriteStepTypeParams(Utf8JsonWriter writer, string stepType, JsonDocument jsonDocument)
+        public static void WriteStepTypeParams(Utf8JsonWriter writer, string stepType, JsonDocument jsonDocument = null)
         {
 
             Type type = Type.GetType(stepType);
@@ -128,9 +131,11 @@ namespace MiadChan.Workflow.Example
                     writer.WritePropertyName("name");
                     writer.WriteStringValue(item.Name);
 
-                    writer.WritePropertyName("value");
-                    // var val = jsonDocument.
-                    writer.WriteStringValue(string.Empty);
+                    if(jsonDocument != null) {
+                        writer.WritePropertyName("value");
+                        // var val = jsonDocument.
+                        writer.WriteStringValue(string.Empty);
+                    }
 
                     writer.WritePropertyName("datatype");
                     writer.WriteStringValue(inputAttr.Kind.ToString());

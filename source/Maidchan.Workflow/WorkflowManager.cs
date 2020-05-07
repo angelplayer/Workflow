@@ -5,6 +5,8 @@ using WorkflowCore.Services.DefinitionStorage;
 using WorkflowCore.Exceptions;
 using Maidchan.Workflow.Storages;
 using Maidchan.Workflow.Exceptions;
+using System.Collections.Generic;
+using Maidchan.Workflow.Attributes;
 
 namespace Maidchan.Workflow
 {
@@ -62,6 +64,15 @@ namespace Maidchan.Workflow
       await graphSore.Save(model.Id, definition, model.Version);
 
       return model.Id;
+    }
+
+    public IEnumerable<string> GetAllStepType()
+    {
+        var allStepClass = typeof(StepTypeAttribute).Assembly.GetTypes();
+        foreach(var stepClass in allStepClass) {
+            if(stepClass.GetCustomAttributes(typeof(StepTypeAttribute), true).Length > 0)
+              yield return $"{stepClass.FullName}, {stepClass.Assembly.GetName().Name}";
+        }
     }
   }
 }

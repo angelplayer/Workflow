@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Maidchan.Workflow
@@ -23,5 +24,10 @@ namespace Maidchan.Workflow
         /// <param name="workflowId">Identity of workflow</param>
         /// <returns>string - workflow id</returns>
         ValueTask<string> GetDefinition(string workflowId);
+
+        ///<summary>
+        /// List all step type
+        ///</summary>
+        IEnumerable<string> GetAllStepType();
     }
 }

@@ -5,6 +5,22 @@ function CreateUUID() {
     });
 }
 
+function SelectionStepType() {
+    let div = document.createElement('div');
+    div.className = 'popover';
+    document.querySelector('body').appendChild(div);
+
+    fetch('/Graph/workflow/allsteptype').then(res => res.json()).then((data) => {
+        Array.from(data).forEach((item) => {
+            let button = document.createElement('button');
+            button.textContent = item.stepType;
+            div.append(button);
+
+            button.click = (evt) => { };
+        });
+    });
+}
+
 function createWidget(key, prop, updateCallback) {
     let c = null;
     if (prop.datatype === 'Text') {
@@ -19,10 +35,10 @@ function createWidget(key, prop, updateCallback) {
         c = document.createElement('input');
         c.type = 'checkbox';
         c.className = 'c-group-control'
-        c.value = prop.value;
-        c.onchange = (evt) => {
-            updateCallback('node', prop, evt.value);
-        }
+        c.checked = prop.value == "true";
+        c.onclick = (evt) => {
+            updateCallback('node', prop, evt.target.checked ? 'true' : 'false');
+        };
      }
     else {
         c = document.createElement('label');
@@ -173,12 +189,32 @@ PanelProps.prototype.draw = function (graph) {
         }
     }
 
+    let labelSelector = document.createElement('label');
+    labelSelector.textContent = "Action";
+    labelSelector.className = 'c-group-label';
+    let taskSelector = document.createElement('label');
+    taskSelector.className = 'c-group-control';
+    taskSelector.textContent = graph.stepType;
+    let groupSelector = document.createElement('div');
+    groupSelector.className = 'c-group';
+
+    // let selectorButton = document.createElement('button');
+    // selectorButton.textContent = "Selection";
+    // selectorButton.onclick = (evt) => {
+    //     SelectionStepType();
+    // }
+    groupSelector.append(labelSelector);
+    groupSelector.append(taskSelector);
+    // groupSelector.append(selectorButton);
+    
+
 
     let p = document.createElement('p');
     p.className = 'subtitle';
     p.textContent = graph.description ?? '';
 
     element.append(goupHeader);
+    element.append(groupSelector);
     element.append(p);
 
     let propsContainer = document.createElement('div');
@@ -230,7 +266,7 @@ var Workflow = function (settings) {
             deleteEdge: false,
         },
         physics: {
-            enabled: true
+            enabled: false
         },
         edges: {
             arrows: {

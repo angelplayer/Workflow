@@ -60,7 +60,8 @@
         template: `
             <div>
                 <label>{{param.name}}</label>
-                <input v-bind:type="inputType" v-on:change="updateState" v-bind:value="value"/>
+                <input v-if="inputType === 'textbox'" v-bind:type="inputType" v-on:change="updateState" v-bind:value="value"/>
+                <input v-else-if="inputType === 'checkbox'" v-bind:type="inputType" v-on:click="checkboxupdateState" v-model="value"/>
                 <div>
                     <span>{{param.help}}</span>
                 </div>
@@ -69,6 +70,9 @@
         methods: {
             updateState: function (evt) {
                 this.$emit('update', "Props."+this.param.name, evt);
+            },
+            checkboxupdateState: function (evt) {
+                this.$emit('update', "Props." + this.param.name, { target: { value: evt.target.checked ? 'true': 'false' } });
             }
         },
         computed: {

@@ -56,16 +56,21 @@
 
 
     Vue.component('ActionParam', {
-        props: ['param'],
+        props: ['param', 'value'],
         template: `
             <div>
                 <label>{{param.name}}</label>
-                <input v-bind:type="inputType"  />
+                <input v-bind:type="inputType" v-on:change="updateState" v-bind:value="value"/>
                 <div>
                     <span>{{param.help}}</span>
                 </div>
             </div>
         `,
+        methods: {
+            updateState: function (evt) {
+                this.$emit('update', "Props."+this.param.name, evt);
+            }
+        },
         computed: {
             inputType: function () {
                 if (this.param.datatype == 'Text') return 'textbox';
@@ -86,14 +91,18 @@
             return {
                 headerEdit: false
             }
-        },//v-on:keyup.enter="emitUpdate('label', $event)"
+        },
         template: `
             <div>
                 <h1 v-if="headerEdit"><input v-bind:value="graph.label" v-on:focusout="labelFocusOut" /></h1>
                 <h1 v-else v-on:dblclick="labelDoubleClick" >{{graph.label}}</h1>
                 <p>{{params.description}}</p>
                 <div>
-                    <ActionParam v-for="(item, index) in getParamProps" v-bind:key="index+item" v-bind:param="item" />
+                    <ActionParam v-for="(item, index) in getParamProps" 
+                        v-bind:key="index+item" 
+                        v-bind:param="item"
+                        v-bind:value="getParamVal[item.name]"
+                        v-on:update="emitUpdate"/>
                 </div>
             </div>
         `,
@@ -113,7 +122,11 @@
         computed: {
             getParamProps: function () {
                 return this.params.Props;
+            },
+            getParamVal: function () {
+                return this.graph.Props ? this.graph.Props: []; 
             }
+
         }
     });
 
@@ -290,7 +303,19 @@
             });
 
             vue.onUpdateGraphEvent((id, key, value) => {
-                updateNode(id, key, value);
+                if (key.startsWith('Props')) {
+
+                    const subkey = key.substring(6);
+                    const oldVal = getNode(id).Props;
+                    value = {
+                        ...oldVal,
+                        [subkey]: value,
+                    }
+                    key = "Props";
+                    
+                    updateNode(id, key, value)
+                } else updateNode(id, key, value);
+
                 vue.selectGraph(getNode(id));
             });
 

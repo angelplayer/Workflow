@@ -67,7 +67,7 @@ namespace MiadChan.Workflow.Example
                     // writer.WritePropertyName("stepType");
                     // writer.WriteStringValue(stepType);
 
-                    WriteStepTypeParams(writer, stepType, document);
+                    WriteStepTypeParams(writer, stepType, step);
 
                     if (step.TryGetProperty("NextStepId", out var to))
                     {
@@ -99,7 +99,11 @@ namespace MiadChan.Workflow.Example
             return Encoding.UTF8.GetString(output.GetBuffer());
         }
 
-        public static void WriteStepTypeParams(Utf8JsonWriter writer, string stepType, JsonDocument jsonDocument = null)
+        public static void WriteStepTypeParams(Utf8JsonWriter writer, string stepType) {
+            WriteStepTypeParams(writer, stepType, null);
+        }
+
+        public static void WriteStepTypeParams(Utf8JsonWriter writer, string stepType, JsonElement? stepElement)
         {
 
             Type type = Type.GetType(stepType);
@@ -123,8 +127,17 @@ namespace MiadChan.Workflow.Example
 
             var propInfos = type.GetProperties();
             writer.WritePropertyName("Props");
-            writer.WriteStartArray();
+            if(!stepElement.HasValue) {
+                WritePropMetadata(writer, propInfos);
+            } else {
+                WritePropsValueOnly(writer, propInfos, stepElement.Value);
+            }
+           
 
+        }
+
+        private static void WritePropMetadata(Utf8JsonWriter writer, PropertyInfo[] propInfos) {
+            writer.WriteStartArray();
             foreach (var item in propInfos)
             {
                 var inputAttr = item.GetCustomAttribute<InputAttribute>();
@@ -133,12 +146,6 @@ namespace MiadChan.Workflow.Example
                     writer.WriteStartObject();
                     writer.WritePropertyName("name");
                     writer.WriteStringValue(item.Name);
-
-                    if(jsonDocument != null) {
-                        writer.WritePropertyName("value");
-                        // var val = jsonDocument.
-                        writer.WriteStringValue(string.Empty);
-                    }
 
                     writer.WritePropertyName("datatype");
                     writer.WriteStringValue(inputAttr.Kind.ToString());
@@ -151,9 +158,25 @@ namespace MiadChan.Workflow.Example
                     writer.WriteEndObject();
                 }
             }
-
             writer.WriteEndArray();
+        }
 
+        private static void WritePropsValueOnly(Utf8JsonWriter writer, PropertyInfo[] propInfos, JsonElement document) {
+            writer.WriteStartObject();
+            foreach (var item in propInfos)
+            {
+                var inputAttr = item.GetCustomAttribute<InputAttribute>();
+                if (inputAttr != null)
+                {
+                    writer.WritePropertyName(item.Name);
+                    if(document.TryGetProperty(item.Name,out var prop)) {
+                         writer.WriteStringValue(prop.GetString());
+                    } else
+                        writer.WriteStringValue("");
+
+                }
+            }
+            writer.WriteEndObject();
         }
     }
 }

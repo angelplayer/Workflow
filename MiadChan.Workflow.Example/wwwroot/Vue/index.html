@@ -14,9 +14,12 @@
     <div class="layout">
         <main id="workflow"></main>
         <aside id="editor">
-            <action-list  
+            <div>
+                <action-list  
                 v-bind:items="steplist" 
                 v-on:change="onchange" />
+            </div>
+            <action-props v-bind:graph="graph" v-bind:params="stepParams" v-on:update="updateGraphState" />
         </aside>
     </div>
     <script src="index.js"></script>

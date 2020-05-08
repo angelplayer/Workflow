@@ -54,6 +54,70 @@
         }
     });
 
+
+    Vue.component('ActionParam', {
+        props: ['param'],
+        template: `
+            <div>
+                <label>{{param.name}}</label>
+                <input v-bind:type="inputType"  />
+                <div>
+                    <span>{{param.help}}</span>
+                </div>
+            </div>
+        `,
+        computed: {
+            inputType: function () {
+                if (this.param.datatype == 'Text') return 'textbox';
+                else if (this.param.datatype == 'Boolean') return 'checkbox';
+                else return "";
+            }
+        }
+    });
+
+    Vue.component('ActionProps', {
+        props: ['graph', 'params'],
+        data: function () {
+            return {
+
+            }  
+        },
+        data: function () {
+            return {
+                headerEdit: false
+            }
+        },//v-on:keyup.enter="emitUpdate('label', $event)"
+        template: `
+            <div>
+                <h1 v-if="headerEdit"><input v-bind:value="graph.label" v-on:focusout="labelFocusOut" /></h1>
+                <h1 v-else v-on:dblclick="labelDoubleClick" >{{graph.label}}</h1>
+                <p>{{params.description}}</p>
+                <div>
+                    <ActionParam v-for="(item, index) in getParamProps" v-bind:key="index+item" v-bind:param="item" />
+                </div>
+            </div>
+        `,
+        methods: {
+            labelDoubleClick: function (evt) {
+                this.$set(this, 'headerEdit', true);
+            }, labelFocusOut: function (evt) {
+                this.$set(this, 'headerEdit', false);
+
+                this.emitUpdate('label', evt);
+            },
+            emitUpdate: function (key, evt) {
+                // emit any state changes
+                this.$emit('update',this.graph.id, key, evt.target.value);
+            }
+        },
+        computed: {
+            getParamProps: function () {
+                return this.params.Props;
+            }
+        }
+    });
+
+
     const vue = new Vue({
         el: '#editor',
         data: () => {
@@ -64,7 +128,9 @@
                 currentSelection: {
                     index: -1, kind: ''
                 },
-                connectEventCallback: []
+                connectEventCallback: [],
+                graphUpdateEventCallback: [],
+                graph: {}
             }
         },
 
@@ -92,12 +158,24 @@
                 this.$set(this, 'currentSelection', {index: selectedIndex, kind: actionKind});
             },
 
+            onUpdateGraphEvent: function (callback) {
+                this.graphUpdateEventCallback.push(callback);
+            },
+
+            updateGraphState: function (id, key, value) {
+                Array.from(this.graphUpdateEventCallback).forEach(cb => cb(id, key, value));
+            },
+
             onConnectEvent: function (callback) {
                 this.connectEventCallback.push(callback);
             },
 
             resetIndex: function () {
                 this.$set(this, 'currentSelection', {index: -1, kind: ''});
+            },
+
+            selectGraph: function (graph) {
+                this.$set(this, 'graph', graph);
             }
         },
 
@@ -108,6 +186,11 @@
             getAction: function () {
                 return this.currentSelection.index > -1 ? this.steplist[this.currentSelection.index] : {} ;
                 
+            },
+            stepParams: function () {
+                if (!this.graph.stepType || this.graph.stepType == 'Dicision') return {};
+                    
+                return Array.from(this.steplist).filter(x => x.stepType === this.graph.stepType)[0];
             }
 
         }
@@ -176,6 +259,25 @@
                     console.log(err);
                 }
             }
+            const getNode = (id) => {
+                try {
+                    return data.nodes.get(id);
+                } catch (err) {
+                    console.log(err);
+                    return null;
+                }
+            }
+
+            const updateNode = (id, key, value) => {
+                try {
+                    data.nodes.update({
+                        [key]: value,
+                        id: id
+                    });
+                } catch (err) {
+                    console.log(err);
+                }
+            }
 
 
             // Events
@@ -187,6 +289,11 @@
                 }
             });
 
+            vue.onUpdateGraphEvent((id, key, value) => {
+                updateNode(id, key, value);
+                vue.selectGraph(getNode(id));
+            });
+
             container.addEventListener('keyup', (evt) => {
                 if (evt.key === 'Delete') {
                     network.deleteSelected();
@@ -194,7 +301,9 @@
             });
 
             network.on('selectNode', (mouse) => {
-
+                let selected = network.getSelectedNodes();
+                let node = getNode(selected[0]);
+                vue.selectGraph(node);
             });
 
             network.on('selectEdge', (mouse) => {
@@ -209,6 +318,7 @@
                     if (kind === 'stepType') {
                         node.shape = 'box';
                         node.label = vue.getAction.stepType;
+                        node.stepType = vue.getAction.stepType;
                         addNode(node);
                     } else if (kind === 'Decision') {
                         node.shape = 'diamond';

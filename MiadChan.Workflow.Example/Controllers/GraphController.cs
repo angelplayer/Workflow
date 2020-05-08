@@ -66,8 +66,6 @@ namespace MiadChan.Workflow.Example.Controllers
 
                 foreach(var step in workflow.GetAllStepType()) {
                     writer.WriteStartObject();
-                        writer.WritePropertyName("stepType");
-                        writer.WriteStringValue(step);
                         GraphTransformer.WriteStepTypeParams(writer, step);
                     writer.WriteEndObject();
                 }

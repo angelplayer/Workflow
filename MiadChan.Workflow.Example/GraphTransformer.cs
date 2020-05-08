@@ -64,8 +64,8 @@ namespace MiadChan.Workflow.Example
                     writer.WriteStringValue("Task " + stepId);
 
                     var stepType = step.GetProperty("StepType").GetString();
-                    writer.WritePropertyName("stepType");
-                    writer.WriteStringValue(stepType);
+                    // writer.WritePropertyName("stepType");
+                    // writer.WriteStringValue(stepType);
 
                     WriteStepTypeParams(writer, stepType, document);
 
@@ -107,6 +107,9 @@ namespace MiadChan.Workflow.Example
             {
                 throw new Exception($"Unreconigzed task {stepType}");
             }
+
+            writer.WritePropertyName("stepType");
+            writer.WriteStringValue(type.Name);
 
             var stepAttr = type.GetCustomAttribute<StepTypeAttribute>();
             if (stepAttr != null)

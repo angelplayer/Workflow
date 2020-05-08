@@ -18,6 +18,8 @@ namespace Maidchan.Workflow
     private readonly IPersistenceProvider persistence;
     private readonly IGraphStore graphSore;
 
+    public static IDictionary<string, System.Type> stepClassDict = new SortedDictionary<string, System.Type>();
+
     public WorkflowManager(IWorkflowController controller, IDefinitionLoader definitionLoader, IWorkflowRegistry registry, IPersistenceProvider persistence, IGraphStore graphSore)
     {
       this.controller = controller;
@@ -25,6 +27,26 @@ namespace Maidchan.Workflow
       this.registry = registry;
       this.persistence = persistence;
       this.graphSore = graphSore;
+
+      if(stepClassDict == null || stepClassDict.Keys.Count == 0) 
+      {
+        LoadStepClass();
+      }
+    }
+
+    private void LoadStepClass()
+    {
+      var allStepClass = typeof(StepTypeAttribute).Assembly.GetTypes();
+      lock(stepClassDict) 
+      {
+        foreach(var stepClass in allStepClass) 
+        {
+          if(stepClass.GetCustomAttributes(typeof(StepTypeAttribute), true).Length > 0)
+          {
+            stepClassDict.Add(stepClass.Name, stepClass);
+          }
+        }
+      }
     }
 
     public async Task Execute(string workflowId, object data = null, string reference = null)
@@ -68,11 +90,15 @@ namespace Maidchan.Workflow
 
     public IEnumerable<string> GetAllStepType()
     {
-        var allStepClass = typeof(StepTypeAttribute).Assembly.GetTypes();
-        foreach(var stepClass in allStepClass) {
-            if(stepClass.GetCustomAttributes(typeof(StepTypeAttribute), true).Length > 0)
-              yield return $"{stepClass.FullName}, {stepClass.Assembly.GetName().Name}";
-        }
+      var allStepClass = stepClassDict.Values;
+
+      if(allStepClass.Count <= 0) 
+        throw new System.Exception("Step classes has not loaded yet!!!");
+
+      foreach(var stepClass in allStepClass) {
+        if(stepClass.GetCustomAttributes(typeof(StepTypeAttribute), true).Length > 0)
+          yield return $"{stepClass.FullName}, {stepClass.Assembly.GetName().Name}";
+      }
     }
   }
 }

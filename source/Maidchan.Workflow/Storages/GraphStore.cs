@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -49,6 +50,19 @@ namespace Maidchan.Workflow.Storages
             }
 
             await Task.CompletedTask;
+        }
+
+        public IEnumerable<string> GetWorkflowList() 
+        {
+            if(Directory.Exists(storeLocation)) 
+            {
+                // var files = Directory.GetFiles(storeLocation,"*.workflow");
+                var files = Directory.GetFiles(storeLocation,"*.workflow");
+                foreach(var f in files) 
+                {
+                    yield return Path.GetFileName(f);
+                }
+            }
         }
     }
 }

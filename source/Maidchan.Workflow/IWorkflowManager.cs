@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -29,5 +30,10 @@ namespace Maidchan.Workflow
         /// List all step type
         ///</summary>
         IEnumerable<string> GetAllStepType();
+
+        ///<summery>
+        ///  List all workflow
+        ///</summery>
+        string[] GetWorkflows();
     }
 }

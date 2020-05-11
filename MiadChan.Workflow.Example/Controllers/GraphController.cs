@@ -18,6 +18,14 @@ namespace MiadChan.Workflow.Example.Controllers
             this.workflow = manager;
         }
 
+        [HttpGet("workflow")]
+        public IActionResult GetWorkflowList() 
+        {
+            var list = this.workflow.GetWorkflows();
+
+            return Ok(list);
+        }
+
         [HttpGet("workflow/{processName}")]
         public IActionResult Get(string processName)
         {

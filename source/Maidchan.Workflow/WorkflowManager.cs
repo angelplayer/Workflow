@@ -7,6 +7,7 @@ using Maidchan.Workflow.Storages;
 using Maidchan.Workflow.Exceptions;
 using System.Collections.Generic;
 using Maidchan.Workflow.Attributes;
+using System.Linq;
 
 namespace Maidchan.Workflow
 {
@@ -99,6 +100,11 @@ namespace Maidchan.Workflow
         if(stepClass.GetCustomAttributes(typeof(StepTypeAttribute), true).Length > 0)
           yield return $"{stepClass.FullName}, {stepClass.Assembly.GetName().Name}";
       }
+    }
+
+    public string[] GetWorkflows()
+    {
+        return graphSore.GetWorkflowList().Select(x => x.Substring(0, x.IndexOf('.'))).ToArray();
     }
   }
 }

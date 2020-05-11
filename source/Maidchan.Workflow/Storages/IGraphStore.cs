@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Maidchan.Workflow.Storages
@@ -9,5 +10,7 @@ namespace Maidchan.Workflow.Storages
         Task Delete(string workflowId, int version);
 
         Task<string> Get(string workflowId, int version);
+
+        IEnumerable<string> GetWorkflowList();
     }
 }

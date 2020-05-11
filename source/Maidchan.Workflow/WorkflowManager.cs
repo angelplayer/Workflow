@@ -101,10 +101,19 @@ namespace Maidchan.Workflow
           yield return $"{stepClass.FullName}, {stepClass.Assembly.GetName().Name}";
       }
     }
-
     public string[] GetWorkflows()
     {
-        return graphSore.GetWorkflowList().Select(x => x.Substring(0, x.IndexOf('.'))).ToArray();
+      var enumerate = graphSore.GetWorkflowList();
+      var list = new List<string>(enumerate.Count());
+      foreach(var item in enumerate) {
+        var path = item.Split('.');
+        if(registry.IsRegistered(path[0], int.Parse(path[1])))
+        {
+          list.Add(path[0]);
+        }
+      }
+
+      return list.ToArray();
     }
   }
 }

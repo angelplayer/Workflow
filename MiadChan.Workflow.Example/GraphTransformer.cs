@@ -162,18 +162,23 @@ namespace MiadChan.Workflow.Example
         }
 
         private static void WritePropsValueOnly(Utf8JsonWriter writer, PropertyInfo[] propInfos, JsonElement document) {
+            var dict = new Dictionary<string, string>();
+            var keyValue = document.GetProperty("Inputs").EnumerateObject();
+            foreach(var kv in keyValue) {
+                dict.Add(kv.Name, kv.Value.GetString());
+            }
+
             writer.WriteStartObject();
             foreach (var item in propInfos)
             {
                 var inputAttr = item.GetCustomAttribute<InputAttribute>();
                 if (inputAttr != null)
                 {
-                    writer.WritePropertyName(item.Name);
-                    if(document.TryGetProperty(item.Name,out var prop)) {
-                         writer.WriteStringValue(prop.GetString());
-                    } else
-                        writer.WriteStringValue("");
-
+                    if (dict.ContainsKey(item.Name))
+                    {
+                        writer.WritePropertyName(item.Name);
+                        writer.WriteStringValue(dict[item.Name]);
+                    }
                 }
             }
             writer.WriteEndObject();

@@ -15,6 +15,9 @@
         <main id="workflow"></main>
         <aside id="editor">
             <div>
+                <workflow-item v-bind:workflows="workflowNames" v-on:choose="chooseWorkflow" />
+            </div>
+            <div>
                 <action-list  
                 v-bind:items="steplist" 
                 v-on:change="onchange" />

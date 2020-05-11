@@ -61,7 +61,7 @@
             <div>
                 <label>{{param.name}}</label>
                 <input v-if="inputType === 'textbox'" v-bind:type="inputType" v-on:change="updateState" v-bind:value="value"/>
-                <input v-else-if="inputType === 'checkbox'" v-bind:type="inputType" v-on:click="checkboxupdateState" v-model="value"/>
+                <input v-else-if="inputType === 'checkbox'" v-bind:type="inputType" v-on:click="checkboxupdateState" v-bind:checked="getCheckboxChecked"/>
                 <div>
                     <span>{{param.help}}</span>
                 </div>
@@ -80,6 +80,8 @@
                 if (this.param.datatype == 'Text') return 'textbox';
                 else if (this.param.datatype == 'Boolean') return 'checkbox';
                 else return "";
+            },getCheckboxChecked: function() {
+                return this.value === 'true'; 
             }
         }
     });
@@ -135,6 +137,22 @@
     });
 
 
+    Vue.component('WorkflowItem', {
+        props: ['workflows'],
+        template: `
+            <ul class="action-list">
+                <li v-for="(item, index) in workflows" v-bind:key="item+index">
+                    <button v-on:click="chooseWorkflow(index)" v-bind:key="'button_' + item + index">{{item}}</button>
+                </li>
+            </ul>
+        `,
+        methods: {
+            chooseWorkflow: function (index) {
+                this.$emit('choose', this.workflows[index]);
+            }
+        }
+    });
+
     const vue = new Vue({
         el: '#editor',
         data: () => {
@@ -147,7 +165,10 @@
                 },
                 connectEventCallback: [],
                 graphUpdateEventCallback: [],
-                graph: {}
+                graphLoadedEventCallback: [],
+                graph: {},
+                currentViewWorkflow: {},
+                workflowNames: []
             }
         },
 
@@ -155,13 +176,16 @@
             this.$nextTick(() => {
 
                 fetch('/Graph/workflow/allsteptype').then(res => res.json()).then((data) => {
-                    console.log('done loading...');
                     this.$set(this, 'steplist', Array.from(data));
-                })
+                });
 
+                fetch('/Graph/workflow').then(res => res.json()).then((data) => {
+                    this.$set(this, 'workflowNames', data);
+                });
             })
         },
 
+        
         methods: {
             onchange: function (selectedIndex, actionKind) {
                 if (actionKind === 'Connect') {
@@ -187,12 +211,27 @@
                 this.connectEventCallback.push(callback);
             },
 
+            onGraphLoadedEvent: function (callback) {
+                this.graphLoadedEventCallback.push(callback);
+            },
+            graphLoaded: function () {
+                Array.from(this.graphLoadedEventCallback).forEach(cb => cb());
+            },
+
             resetIndex: function () {
                 this.$set(this, 'currentSelection', {index: -1, kind: ''});
             },
 
             selectGraph: function (graph) {
                 this.$set(this, 'graph', graph);
+            },
+            chooseWorkflow: function (workflowName) {
+                if (!workflowName || workflowName === '') return;
+
+                fetch(`/Graph/workflow/${workflowName}`).then(res => res.json()).then((data) => {
+                    this.$set(this, 'currentViewWorkflow', data);
+                    this.graphLoaded();
+                });
             }
         },
 
@@ -208,6 +247,9 @@
                 if (!this.graph.stepType || this.graph.stepType == 'Dicision') return {};
                     
                 return Array.from(this.steplist).filter(x => x.stepType === this.graph.stepType)[0];
+            },
+            getCurrentWorkflow: function () {
+                return this.currentViewWorkflow;
             }
 
         }
@@ -296,6 +338,14 @@
                 }
             }
 
+            const addEdge = (edge) => {
+                try {
+                    data.edges.add(edge);
+                } catch (err) {
+                    console.log(err);
+                }
+            }
+
 
             // Events
             vue.onConnectEvent(() => {
@@ -321,6 +371,25 @@
                 } else updateNode(id, key, value);
 
                 vue.selectGraph(getNode(id));
+            });
+
+            vue.onGraphLoadedEvent((json) => {
+                if (vue.getCurrentWorkflow) {
+                    Array.from(vue.getCurrentWorkflow.nodes).forEach((n) => {
+                        let node = { id: n.id, ...n };
+                        if (n.kind === 'stepType') {
+                            node.shape = 'box';
+                        } else if (n.kind === 'Decision') {
+                            node.shape = 'diamond';
+                        }
+                        addNode(node);
+                    });
+
+                    Array.from(vue.getCurrentWorkflow.edges).forEach((e) => {
+                        // TODO: should add label to edge here
+                        addEdge(e);
+                    });
+                }
             });
 
             container.addEventListener('keyup', (evt) => {
@@ -358,9 +427,6 @@
                     }
                     
                 };
-
-            network.on('')
-
                 vue.resetIndex();
             });
         },

@@ -166,6 +166,7 @@
                 connectEventCallback: [],
                 graphUpdateEventCallback: [],
                 graphLoadedEventCallback: [],
+                commitGraphCallback: [],
                 graph: {},
                 currentViewWorkflow: {},
                 workflowNames: []
@@ -217,6 +218,9 @@
             graphLoaded: function () {
                 Array.from(this.graphLoadedEventCallback).forEach(cb => cb());
             },
+            onCommitEvent: function (callback) {
+              this.commitGraphCallback.push(callback);
+            },
 
             resetIndex: function () {
                 this.$set(this, 'currentSelection', {index: -1, kind: ''});
@@ -232,7 +236,30 @@
                     this.$set(this, 'currentViewWorkflow', data);
                     this.graphLoaded();
                 });
+          },
+            
+          commitGraphToServer: function (jsonData) {
+            jsonData.id = this.currentViewWorkflow.id;
+            jsonData.version = this.currentViewWorkflow.version;
+
+            console.log(JSON.stringify(jsonData));
+
+            fetch(`/Graph/workflow/${this.currentViewWorkflow.id}`, {
+              method: 'PUT',
+              body: JSON.stringify(jsonData),
+              headers: { "content-type": "Application/json" }
+            }).then(res => {
+              if (res.ok) {
+                this.chooseWorkflow(this.currentViewWorkflow.id);
+              }
+            }).catch(e => console.log(e));
+          },  
+          
+          commitGraph: function () {
+            if (this.currentViewWorkflow) {
+              Array.from(this.commitGraphCallback).forEach(cb => cb());
             }
+          }
         },
 
         computed: {
@@ -258,8 +285,6 @@
 
     const workflow = {
         init: (settings) => {
-            let container = document.getElementById(settings.el);
-            
             let options = {
                 interaction: {
                     hover: true,
@@ -306,7 +331,8 @@
             const data = {
                 nodes: new vis.DataSet([]),
                 edges: new vis.DataSet([])
-            }
+          }
+            let container = document.getElementById(settings.el);
             let network = new vis.Network(container, data, options);
 
 
@@ -348,6 +374,12 @@
 
 
             // Events
+            container.addEventListener('keyup', (evt) => {
+              if (evt.key === 'Delete') {
+                  network.deleteSelected();
+              };
+            });
+        
             vue.onConnectEvent(() => {
                 if (network.manipulation.inMode === 'addEdge') {
                     network.disableEditMode();
@@ -392,12 +424,13 @@
                 }
             });
 
-            container.addEventListener('keyup', (evt) => {
-                if (evt.key === 'Delete') {
-                    network.deleteSelected();
-                };
+            vue.onCommitEvent(() => {
+              vue.commitGraphToServer({
+                nodes: data.nodes.map(x => x),
+                edges: data.edges.map(x => x)
+              });
             });
-
+        
             network.on('selectNode', (mouse) => {
                 let selected = network.getSelectedNodes();
                 let node = getNode(selected[0]);

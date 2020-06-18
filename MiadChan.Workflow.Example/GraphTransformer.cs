@@ -34,16 +34,17 @@ namespace MiadChan.Workflow.Example
 
                 string id = document.RootElement.GetProperty("Id").GetString();
                 int version = document.RootElement.GetProperty("Version").GetInt16();
+                
 
                 writer.WriteStartObject();
 
-                writer.WritePropertyName("Id");
+                writer.WritePropertyName("id");
                 writer.WriteStringValue(id);
 
-                writer.WritePropertyName("Id");
+                writer.WritePropertyName("version");
                 writer.WriteNumberValue(version);
 
-                writer.WritePropertyName("Nodes");
+                writer.WritePropertyName("nodes");
                 writer.WriteStartArray();
 
                 var steps = document.RootElement.GetProperty("Steps").EnumerateArray();
@@ -51,15 +52,22 @@ namespace MiadChan.Workflow.Example
                 {
                     writer.WriteStartObject();
 
-                    writer.WritePropertyName("Id");
+                    // Consider capitalize problem
+                    writer.WritePropertyName("id");
                     var stepId = step.GetProperty("Id").GetString();
                     writer.WriteStringValue(stepId);
 
                     writer.WritePropertyName("kind");
                     writer.WriteStringValue("task");
 
+                     writer.WritePropertyName("label");
+                    writer.WriteStringValue("Task " + stepId);
+
                     var stepType = step.GetProperty("StepType").GetString();
-                    WriteStepTypeParams(writer, stepType);
+                    // writer.WritePropertyName("stepType");
+                    // writer.WriteStringValue(stepType);
+
+                    WriteStepTypeParams(writer, stepType, step);
 
                     if (step.TryGetProperty("NextStepId", out var to))
                     {
@@ -91,7 +99,11 @@ namespace MiadChan.Workflow.Example
             return Encoding.UTF8.GetString(output.GetBuffer());
         }
 
-        public static void WriteStepTypeParams(Utf8JsonWriter writer, string stepType)
+        public static void WriteStepTypeParams(Utf8JsonWriter writer, string stepType) {
+            WriteStepTypeParams(writer, stepType, null);
+        }
+
+        public static void WriteStepTypeParams(Utf8JsonWriter writer, string stepType, JsonElement? stepElement)
         {
 
             Type type = Type.GetType(stepType);
@@ -99,6 +111,9 @@ namespace MiadChan.Workflow.Example
             {
                 throw new Exception($"Unreconigzed task {stepType}");
             }
+
+            writer.WritePropertyName("stepType");
+            writer.WriteStringValue(type.Name);
 
             var stepAttr = type.GetCustomAttribute<StepTypeAttribute>();
             if (stepAttr != null)
@@ -112,8 +127,17 @@ namespace MiadChan.Workflow.Example
 
             var propInfos = type.GetProperties();
             writer.WritePropertyName("Props");
-            writer.WriteStartArray();
+            if(!stepElement.HasValue) {
+                WritePropMetadata(writer, propInfos);
+            } else {
+                WritePropsValueOnly(writer, propInfos, stepElement.Value);
+            }
+           
 
+        }
+
+        private static void WritePropMetadata(Utf8JsonWriter writer, PropertyInfo[] propInfos) {
+            writer.WriteStartArray();
             foreach (var item in propInfos)
             {
                 var inputAttr = item.GetCustomAttribute<InputAttribute>();
@@ -134,9 +158,30 @@ namespace MiadChan.Workflow.Example
                     writer.WriteEndObject();
                 }
             }
-
             writer.WriteEndArray();
+        }
 
+        private static void WritePropsValueOnly(Utf8JsonWriter writer, PropertyInfo[] propInfos, JsonElement document) {
+            var dict = new Dictionary<string, string>();
+            var keyValue = document.GetProperty("Inputs").EnumerateObject();
+            foreach(var kv in keyValue) {
+                dict.Add(kv.Name, kv.Value.GetString());
+            }
+
+            writer.WriteStartObject();
+            foreach (var item in propInfos)
+            {
+                var inputAttr = item.GetCustomAttribute<InputAttribute>();
+                if (inputAttr != null)
+                {
+                    if (dict.ContainsKey(item.Name))
+                    {
+                        writer.WritePropertyName(item.Name);
+                        writer.WriteStringValue(dict[item.Name]);
+                    }
+                }
+            }
+            writer.WriteEndObject();
         }
     }
 }

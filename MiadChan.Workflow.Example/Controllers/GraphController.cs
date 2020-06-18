@@ -2,6 +2,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Maidchan.Workflow;
+using System.Text.Json;
+using System.Text;
 
 namespace MiadChan.Workflow.Example.Controllers
 {
@@ -14,6 +16,14 @@ namespace MiadChan.Workflow.Example.Controllers
         public GraphController(IWorkflowManager manager)
         {
             this.workflow = manager;
+        }
+
+        [HttpGet("workflow")]
+        public IActionResult GetWorkflowList() 
+        {
+            var list = this.workflow.GetWorkflows();
+
+            return Ok(list);
         }
 
         [HttpGet("workflow/{processName}")]
@@ -48,6 +58,30 @@ namespace MiadChan.Workflow.Example.Controllers
             {
                 return NotFound(ex.Message);
             }
+        }
+
+        [HttpGet("workflow/allsteptype")]
+        public IActionResult GetAllSteptype() {
+
+            var options = new JsonWriterOptions()
+            {
+                Indented = true
+            };
+
+            var output = new MemoryStream();
+            using(var writer = new Utf8JsonWriter(output, options)) {
+                writer.WriteStartArray();
+
+                foreach(var step in workflow.GetAllStepType()) {
+                    writer.WriteStartObject();
+                        GraphTransformer.WriteStepTypeParams(writer, step);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
+            }
+
+            return Ok(Encoding.UTF8.GetString(output.GetBuffer()));
         }
     }
 }

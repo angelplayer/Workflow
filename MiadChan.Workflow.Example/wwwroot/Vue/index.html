@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="vis-network.min.css"/>
+    <link rel="stylesheet" href="main.css" />
+    <script src="vis-network.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+    <div class="layout">
+        <main id="workflow"></main>
+        <aside id="editor">
+            <div>
+                <workflow-item v-bind:workflows="workflowNames" v-on:choose="chooseWorkflow" />
+            </div>
+            <div>
+                <action-list  
+                v-bind:items="steplist" 
+                v-on:change="onchange" />
+            </div>
+            <action-props v-bind:graph="graph" v-bind:params="stepParams" v-on:update="updateGraphState" />
+        </aside>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>

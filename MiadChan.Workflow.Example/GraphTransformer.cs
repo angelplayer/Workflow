@@ -3,9 +3,12 @@ using System.Text;
 using System.Text.Json;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System;
+
 using Maidchan.Workflow.Attributes;
 using System.Reflection;
+using static MiadChan.Workflow.Example.Controllers.GraphController;
 
 namespace MiadChan.Workflow.Example
 {
@@ -183,5 +186,62 @@ namespace MiadChan.Workflow.Example
             }
             writer.WriteEndObject();
         }
+
+        public static string WorkflowFromGraph(WorkflowDto dto) 
+        {
+          var options = new JsonWriterOptions()
+          {
+              Indented = true
+          };
+
+          var output = new MemoryStream();
+          using (var writer = new Utf8JsonWriter(output, options))
+          {
+          writer.WriteStartObject();
+
+          writer.WritePropertyName("Id");
+          writer.WriteStringValue(dto.Id);
+
+          writer.WritePropertyName(nameof(dto.Version));
+          writer.WriteStringValue("Version");
+          writer.WritePropertyName("DataType");
+          writer.WriteStringValue("");
+
+          writer.WritePropertyName("Steps");
+        
+          writer.WriteStartArray();
+
+            foreach (var node in dto.Nodes)
+            {
+              writer.WriteStartObject();
+
+              writer.WritePropertyName("Id");
+              writer.WriteStringValue(node.Id);
+
+              writer.WritePropertyName("StepType");
+              writer.WriteStringValue(node.StepType);
+
+              var enumerate = node.Props.EnumerateObject();
+              if(enumerate.Count() > 0) {
+                writer.WritePropertyName("Inputs");
+                writer.WriteStartObject();
+                foreach (var prop in enumerate){
+                  writer.WritePropertyName(prop.Name);
+                  writer.WriteStringValue(prop.Value.GetString());
+                }
+                writer.WriteEndObject();
+              }
+              
+
+            writer.WritePropertyName("NextStepId");
+              writer.WriteStringValue("");
+              writer.WriteEndObject();
+            }
+          writer.WriteEndArray();
+
+          writer.WriteEndObject();
+        }
+        return Encoding.UTF8.GetString(output.GetBuffer());
+      }
     }
 }

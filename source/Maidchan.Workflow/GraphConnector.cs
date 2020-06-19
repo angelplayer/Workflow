@@ -29,9 +29,10 @@ namespace Maidchan.Workflow
       return await workflowManager.SaveWorkflow(json);
     }
 
-    public void Commit(WorkflowDataModel workflowJson) 
+    public string Commit(WorkflowDataModel workflowJson) 
     {
-      GraphTransformer.WorkflowFromGraph(workflowJson, workflowManager.ExportStepType());
+      var resutl =GraphTransformer.WorkflowFromGraph(workflowJson, workflowManager.ExportStepType());
+      return resutl;
     }
 
     public string AllStepType() 

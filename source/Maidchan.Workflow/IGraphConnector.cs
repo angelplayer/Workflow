@@ -7,7 +7,7 @@ namespace Maidchan.Workflow
   {
     string GetGraph(string graphName);
     ValueTask<string> SetGraph(string json);
-    void Commit(WorkflowDataModel model);
+    string Commit(WorkflowDataModel model);
     string AllStepType();
     string[] GetWorkNameList();
   }

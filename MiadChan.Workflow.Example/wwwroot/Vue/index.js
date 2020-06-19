@@ -169,7 +169,9 @@
                 commitGraphCallback: [],
                 graph: {},
                 currentViewWorkflow: {},
-                workflowNames: []
+                workflowNames: [],
+                
+                defintions: ""
             }
         },
 
@@ -248,11 +250,9 @@
               method: 'PUT',
               body: JSON.stringify(jsonData),
               headers: { "content-type": "Application/json" }
-            }).then(res => {
-              if (res.ok) {
-                this.chooseWorkflow(this.currentViewWorkflow.id);
-              }
-            }).catch(e => console.log(e));
+            }).then(res => res.json())
+              .then((data) => this.$set(this, "defintions", data))
+              .catch(e => console.log(e));
           },  
           
           commitGraph: function () {

@@ -198,7 +198,7 @@ namespace MiadChan.Workflow.Transformer
           writer.WriteStringValue(dto.Id);
 
           writer.WritePropertyName(nameof(dto.Version));
-          writer.WriteStringValue("Version");
+          writer.WriteStringValue(dto.Version.ToString());
           writer.WritePropertyName("DataType");
           writer.WriteStringValue("");
 
@@ -225,11 +225,13 @@ namespace MiadChan.Workflow.Transformer
                   writer.WriteStringValue(prop.Value.GetString());
                 }
                 writer.WriteEndObject();
-              }
-              
 
-            writer.WritePropertyName("NextStepId");
-              writer.WriteStringValue("");
+              var hasNextStep = dto.Edges.Where(x => x.From == node.Id);
+              foreach(var nextStep in hasNextStep) {
+                writer.WritePropertyName("NextStepId");
+                writer.WriteStringValue(nextStep.To);
+            }
+          }
               writer.WriteEndObject();
             }
           writer.WriteEndArray();

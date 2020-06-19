@@ -62,10 +62,10 @@ namespace MiadChan.Workflow.Example.Controllers
     }
 
     [HttpPut("workflow/{id}")]
-    public async Task<IActionResult> Put([FromRoute] string Id, [FromBody] WorkflowDto workflowJson)
+    public async Task<IActionResult> Put([FromRoute] string Id, [FromBody] WorkflowDataModel workflowJson)
     {
       await Task.Yield();
-      return Ok(GraphTransformer.WorkflowFromGraph(workflowJson));
+      return Ok(GraphTransformer.WorkflowFromGraph(workflowJson, workflow.ExportStepType()));
     }
 
     [HttpGet("workflow/allsteptype")]
@@ -93,31 +93,6 @@ namespace MiadChan.Workflow.Example.Controllers
       }
 
       return Ok(Encoding.UTF8.GetString(output.GetBuffer()));
-    }
-
-    public class Node
-    {
-      public string Id { get; set; }
-      public string Kind { get; set; }
-      public string Label { get; set; }
-      public string StepType { get; set; }
-      public string Description { get; set; }
-      public JsonElement Props{ get; set; }
-    }
-
-    public class Edge {
-      public string From { get; set; }
-      public string To { get; set; }
-      public string Id { get; set; }
-    }
-
-    public class WorkflowDto
-    {
-      public string Id { get; set; }
-      public int Version { get; set; }
-      public IEnumerable<Node>  Nodes { get; set; }
-      public IEnumerable<Edge> Edges { get; set; }
-      public string DataType { get; set; }
     }
   }
 }

@@ -8,16 +8,9 @@ using System;
 
 using Maidchan.Workflow.Attributes;
 using System.Reflection;
-using static MiadChan.Workflow.Example.Controllers.GraphController;
 
 namespace MiadChan.Workflow.Example
 {
-    public struct Edge
-    {
-        public string From;
-        public string To;
-    }
-
     public class GraphTransformer
     {
         public static string ConvertToDegreD3Object(string workflow)
@@ -187,7 +180,7 @@ namespace MiadChan.Workflow.Example
             writer.WriteEndObject();
         }
 
-        public static string WorkflowFromGraph(WorkflowDto dto) 
+        public static string WorkflowFromGraph(WorkflowDataModel dto, IDictionary<string, System.Type> stepTypeDict) 
         {
           var options = new JsonWriterOptions()
           {
@@ -219,7 +212,7 @@ namespace MiadChan.Workflow.Example
               writer.WriteStringValue(node.Id);
 
               writer.WritePropertyName("StepType");
-              writer.WriteStringValue(node.StepType);
+              writer.WriteStringValue($"{stepTypeDict[node.StepType].FullName}, {stepTypeDict[node.StepType].Assembly.GetName().Name}");
 
               var enumerate = node.Props.EnumerateObject();
               if(enumerate.Count() > 0) {

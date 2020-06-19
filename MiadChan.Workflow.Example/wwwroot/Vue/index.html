@@ -16,7 +16,6 @@
         <aside id="editor">
             <div>
                 <button @click="commitGraph">Commit</button>
-                <workflow-item v-bind:workflows="workflowNames" v-on:choose="chooseWorkflow" />
             </div>
             <div>
                 <action-list  
@@ -24,9 +23,6 @@
                 v-on:change="onchange" />
             </div>
             <action-props v-bind:graph="graph" v-bind:params="stepParams" v-on:update="updateGraphState" />
-            <div>
-              <code>{{defintions}}</code>
-            </div>
         </aside>
     </div>
     <script src="index.js"></script>

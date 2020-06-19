@@ -6,6 +6,7 @@ using WorkflowCore.Exceptions;
 using Maidchan.Workflow.Storages;
 using Maidchan.Workflow.Exceptions;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Maidchan.Workflow.Attributes;
 using System.Linq;
 
@@ -114,6 +115,10 @@ namespace Maidchan.Workflow
       }
 
       return list.ToArray();
+    }
+
+    public IDictionary<string, System.Type> ExportStepType() {
+      return stepClassDict.ToImmutableDictionary();
     }
   }
 }

@@ -2,19 +2,17 @@
 using System.Text;
 using System.Text.Json;
 using System.Collections.Generic;
-using System.IO;
-using System;
-using Maidchan.Workflow.Attributes;
 using System.Reflection;
+using System.IO;
+using System.Linq;
+using System;
 
-namespace MiadChan.Workflow.Example
+
+using Maidchan.Workflow.Attributes;
+using MiadChan.Workflow.Models;
+
+namespace MiadChan.Workflow.Transformer
 {
-    public struct Edge
-    {
-        public string From;
-        public string To;
-    }
-
     public class GraphTransformer
     {
         public static string ConvertToDegreD3Object(string workflow)
@@ -183,5 +181,64 @@ namespace MiadChan.Workflow.Example
             }
             writer.WriteEndObject();
         }
+
+        public static string WorkflowFromGraph(WorkflowDataModel dto, IDictionary<string, System.Type> stepTypeDict) 
+        {
+          var options = new JsonWriterOptions()
+          {
+              Indented = true
+          };
+
+          var output = new MemoryStream();
+          using (var writer = new Utf8JsonWriter(output, options))
+          {
+          writer.WriteStartObject();
+
+          writer.WritePropertyName("Id");
+          writer.WriteStringValue(dto.Id);
+
+          writer.WritePropertyName(nameof(dto.Version));
+          writer.WriteStringValue(dto.Version.ToString());
+          writer.WritePropertyName("DataType");
+          writer.WriteStringValue("");
+
+          writer.WritePropertyName("Steps");
+        
+          writer.WriteStartArray();
+
+            foreach (var node in dto.Nodes)
+            {
+              writer.WriteStartObject();
+
+              writer.WritePropertyName("Id");
+              writer.WriteStringValue(node.Id);
+
+              writer.WritePropertyName("StepType");
+              writer.WriteStringValue($"{stepTypeDict[node.StepType].FullName}, {stepTypeDict[node.StepType].Assembly.GetName().Name}");
+
+              var enumerate = node.Props.EnumerateObject();
+              if(enumerate.Count() > 0) {
+                writer.WritePropertyName("Inputs");
+                writer.WriteStartObject();
+                foreach (var prop in enumerate){
+                  writer.WritePropertyName(prop.Name);
+                  writer.WriteStringValue(prop.Value.GetString());
+                }
+                writer.WriteEndObject();
+
+              var hasNextStep = dto.Edges.Where(x => x.From == node.Id);
+              foreach(var nextStep in hasNextStep) {
+                writer.WritePropertyName("NextStepId");
+                writer.WriteStringValue(nextStep.To);
+            }
+          }
+              writer.WriteEndObject();
+            }
+          writer.WriteEndArray();
+
+          writer.WriteEndObject();
+        }
+        return Encoding.UTF8.GetString(output.GetBuffer());
+      }
     }
 }

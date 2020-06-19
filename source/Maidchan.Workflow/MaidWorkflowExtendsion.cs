@@ -13,6 +13,7 @@ namespace Maidchan.Workflow
       serviceCollection.AddWorkflow(/*x => x.UseSqlite(@"Data Source=database.db;", true)*/);
       serviceCollection.AddWorkflowDSL();
       serviceCollection.AddTransient<IWorkflowManager, WorkflowManager>();
+      serviceCollection.AddTransient<IGraphConnector, GraphConnector>();
 
       return serviceCollection;
     }

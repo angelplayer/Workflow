@@ -15,7 +15,7 @@
         <main id="workflow"></main>
         <aside id="editor">
             <div>
-                <workflow-item v-bind:workflows="workflowNames" v-on:choose="chooseWorkflow" />
+                <button @click="commitGraph">Commit</button>
             </div>
             <div>
                 <action-list  

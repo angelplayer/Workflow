@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MiadChan.Workflow.Example
+namespace MiadChan.Workflow.Models
 {
   public class WorkflowDataModel
   {

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace MiadChan.Workflow.Example
+namespace MiadChan.Workflow.Models
 {
   public class Node
   {

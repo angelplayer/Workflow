@@ -2,9 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Maidchan.Workflow;
-using System.Text.Json;
-using System.Text;
-using System.Collections.Generic;
+using MiadChan.Workflow.Models;
 
 namespace MiadChan.Workflow.Example.Controllers
 {
@@ -12,30 +10,24 @@ namespace MiadChan.Workflow.Example.Controllers
   [Route("[Controller]")]
   public class GraphController : ControllerBase
   {
-    readonly IWorkflowManager workflow;
+    readonly IGraphConnector connector;
 
-    public GraphController(IWorkflowManager manager)
+    public GraphController(IGraphConnector connector)
     {
-      this.workflow = manager;
+      this.connector = connector;
     }
 
     [HttpGet("workflow")]
     public IActionResult GetWorkflowList()
     {
-      var list = this.workflow.GetWorkflows();
-
-      return Ok(list);
+      return Ok(connector.GetWorkNameList());
     }
 
     [HttpGet("workflow/{processName}")]
     public IActionResult Get(string processName)
     {
       // Retrieve workflow defintion from json
-      var json = workflow.GetDefinition(processName);
-
-      // Convert it Dagre-3d json data format
-      string dagreObject = GraphTransformer.ConvertToDegreD3Object(json.Result);
-      return Ok(dagreObject);
+      return Ok(connector.GetGraph(processName));
     }
 
     [HttpPost("workflow")]
@@ -47,9 +39,9 @@ namespace MiadChan.Workflow.Example.Controllers
       {
         // Load json from file for temporary
         var json = await System.IO.File.ReadAllTextAsync("workflow2.json");
-        var workflowId = workflow.SaveWorkflow(json);
+        await connector.SetGraph(json);
 
-        return Ok(workflowId.Result);
+        return Ok();
       }
       catch (FileNotFoundException ex)
       {
@@ -65,34 +57,14 @@ namespace MiadChan.Workflow.Example.Controllers
     public async Task<IActionResult> Put([FromRoute] string Id, [FromBody] WorkflowDataModel workflowJson)
     {
       await Task.Yield();
-      return Ok(GraphTransformer.WorkflowFromGraph(workflowJson, workflow.ExportStepType()));
+      connector.Commit(workflowJson);
+      return Ok();
     }
 
     [HttpGet("workflow/allsteptype")]
     public IActionResult GetAllSteptype()
     {
-
-      var options = new JsonWriterOptions()
-      {
-        Indented = true
-      };
-
-      var output = new MemoryStream();
-      using (var writer = new Utf8JsonWriter(output, options))
-      {
-        writer.WriteStartArray();
-
-        foreach (var step in workflow.GetAllStepType())
-        {
-          writer.WriteStartObject();
-          GraphTransformer.WriteStepTypeParams(writer, step);
-          writer.WriteEndObject();
-        }
-
-        writer.WriteEndArray();
-      }
-
-      return Ok(Encoding.UTF8.GetString(output.GetBuffer()));
+      return Ok(connector.AllStepType());
     }
   }
 }

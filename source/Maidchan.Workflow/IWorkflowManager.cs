@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -35,5 +34,10 @@ namespace Maidchan.Workflow
         ///  List all workflow
         ///</summery>
         string[] GetWorkflows();
-    }
+
+        ///<summery>
+        /// Export all step type 
+        ///</summery>
+        IDictionary<string, System.Type> ExportStepType();
+  }
 }

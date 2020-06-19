@@ -1,6 +1,6 @@
-namespace MiadChan.Workflow.Example
+namespace MiadChan.Workflow.Models
 {
-  public class Edge
+   public class Edge
   {
     public string From { get; set; }
     public string To { get; set; }

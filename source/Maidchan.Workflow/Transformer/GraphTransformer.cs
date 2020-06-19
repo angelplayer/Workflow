@@ -2,14 +2,16 @@
 using System.Text;
 using System.Text.Json;
 using System.Collections.Generic;
+using System.Reflection;
 using System.IO;
 using System.Linq;
 using System;
 
-using Maidchan.Workflow.Attributes;
-using System.Reflection;
 
-namespace MiadChan.Workflow.Example
+using Maidchan.Workflow.Attributes;
+using MiadChan.Workflow.Models;
+
+namespace MiadChan.Workflow.Transformer
 {
     public class GraphTransformer
     {

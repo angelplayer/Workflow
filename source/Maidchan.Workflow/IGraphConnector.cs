@@ -6,8 +6,8 @@ namespace Maidchan.Workflow
   public interface IGraphConnector
   {
     string GetGraph(string graphName);
-    ValueTask<string> SetGraph(string json);
-    string Commit(WorkflowDataModel model);
+    Task SetGraph(string json);
+    Task CommitAsync(WorkflowDataModel model);
     string AllStepType();
     string[] GetWorkNameList();
   }

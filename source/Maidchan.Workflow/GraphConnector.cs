@@ -24,15 +24,15 @@ namespace Maidchan.Workflow
       return GraphTransformer.ConvertToDegreD3Object(json.Result);
     }
 
-    public async ValueTask<string> SetGraph(string json) 
+    public async Task SetGraph(string json) 
     {
-      return await workflowManager.SaveWorkflow(json);
+      await workflowManager.SaveWorkflow(json);
     }
 
-    public string Commit(WorkflowDataModel workflowJson) 
+    public async Task CommitAsync(WorkflowDataModel workflowJson) 
     {
-      var resutl =GraphTransformer.WorkflowFromGraph(workflowJson, workflowManager.ExportStepType());
-      return resutl;
+      var resutl = GraphTransformer.WorkflowFromGraph(workflowJson, workflowManager.ExportStepType());
+      await SetGraph(resutl);
     }
 
     public string AllStepType() 

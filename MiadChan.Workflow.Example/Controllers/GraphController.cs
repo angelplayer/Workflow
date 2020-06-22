@@ -56,9 +56,8 @@ namespace MiadChan.Workflow.Example.Controllers
     [HttpPut("workflow/{id}")]
     public async Task<IActionResult> Put([FromRoute] string Id, [FromBody] WorkflowDataModel workflowJson)
     {
-      await Task.Yield();
-      var result = connector.Commit(workflowJson);
-      return Ok(result);
+      await connector.CommitAsync(workflowJson);
+      return Ok();
     }
 
     [HttpGet("workflow/allsteptype")]

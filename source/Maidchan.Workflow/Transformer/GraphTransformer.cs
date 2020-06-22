@@ -10,6 +10,7 @@ using System;
 
 using Maidchan.Workflow.Attributes;
 using MiadChan.Workflow.Models;
+using Maidchan.Workflow.Extension;
 
 namespace MiadChan.Workflow.Transformer
 {
@@ -175,7 +176,7 @@ namespace MiadChan.Workflow.Transformer
                     if (dict.ContainsKey(item.Name))
                     {
                         writer.WritePropertyName(item.Name);
-                        writer.WriteStringValue(dict[item.Name]);
+                        writer.WriteStringValue(dict[item.Name].DesExpression());
                     }
                 }
             }
@@ -222,7 +223,7 @@ namespace MiadChan.Workflow.Transformer
                 writer.WriteStartObject();
                 foreach (var prop in enumerate){
                   writer.WritePropertyName(prop.Name);
-                  writer.WriteStringValue(prop.Value.GetString());
+                  writer.WriteStringValue(prop.Value.GetString().AsExpression());
                 }
                 writer.WriteEndObject();
 

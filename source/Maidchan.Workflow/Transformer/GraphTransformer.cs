@@ -32,7 +32,7 @@ namespace MiadChan.Workflow.Transformer
                 List<Edge> edges = new List<Edge>();
 
                 string id = document.RootElement.GetProperty("Id").GetString();
-                int version = document.RootElement.GetProperty("Version").GetInt16();
+                string version = document.RootElement.GetProperty("Version").GetString();
                 
 
                 writer.WriteStartObject();
@@ -41,7 +41,7 @@ namespace MiadChan.Workflow.Transformer
                 writer.WriteStringValue(id);
 
                 writer.WritePropertyName("version");
-                writer.WriteNumberValue(version);
+                writer.WriteStringValue(version);
 
                 writer.WritePropertyName("nodes");
                 writer.WriteStartArray();

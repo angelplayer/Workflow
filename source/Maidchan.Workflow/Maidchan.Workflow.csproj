@@ -2,14 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Workflow</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Angelplayer</Authors>
+    <PackageDescription>Workflow component for Maid Chan AI</PackageDescription>
+    <RepositoryUrl>https://github.com/angeplayer/Workflow</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.2"  PrivateAssets="PrivateAssets"/>
-    <PackageReference Include="WorkflowCore" Version="3.1.5" />
-    <PackageReference Include="workflowcore.dsl" Version="3.1.5" />
-    <PackageReference Include="WorkflowCore.Persistence.Sqlite" Version="3.0.0" />
+    <PackageReference Include="WorkflowCore" Version="3.1.5" PrivateAssets="PrivateAssets" />
+    <PackageReference Include="workflowcore.dsl" Version="3.1.5" PrivateAssets="PrivateAssets" />
+    <PackageReference Include="WorkflowCore.Persistence.Sqlite" Version="3.0.0" PrivateAssets="PrivateAssets" />
   </ItemGroup>
 
 </Project>

@@ -59,8 +59,8 @@ namespace MiadChan.Workflow.Transformer
                     writer.WritePropertyName("kind");
                     writer.WriteStringValue("task");
 
-                     writer.WritePropertyName("label");
-                    writer.WriteStringValue("Task " + stepId);
+                    writer.WritePropertyName("label");
+                    writer.WriteStringValue(step.GetProperty("label").ToString());
 
                     var stepType = step.GetProperty("StepType").GetString();
                     // writer.WritePropertyName("stepType");
@@ -213,6 +213,9 @@ namespace MiadChan.Workflow.Transformer
 
               writer.WritePropertyName("Id");
               writer.WriteStringValue(node.Id);
+
+              writer.WritePropertyName("label");
+              writer.WriteStringValue(node.Label);
 
               writer.WritePropertyName("StepType");
               writer.WriteStringValue($"{stepTypeDict[node.StepType].FullName}, {stepTypeDict[node.StepType].Assembly.GetName().Name}");

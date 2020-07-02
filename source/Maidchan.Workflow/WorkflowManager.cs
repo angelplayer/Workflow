@@ -105,12 +105,15 @@ namespace Maidchan.Workflow
     public string[] GetWorkflows()
     {
       var enumerate = graphSore.GetWorkflowList();
-      var list = new List<string>(enumerate.Count());
+      var list = new HashSet<string>();
       foreach(var item in enumerate) {
         var path = item.Split('.');
         if(registry.IsRegistered(path[0], int.Parse(path[1])))
         {
-          list.Add(path[0]);
+          if(!list.Contains(path[0])) 
+          {
+            list.Add(path[0]);
+          }
         }
       }
 

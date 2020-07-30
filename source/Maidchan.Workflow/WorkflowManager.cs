@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Maidchan.Workflow.Attributes;
 using System.Linq;
+using System.Reflection;
 
 namespace Maidchan.Workflow
 {
@@ -38,7 +39,9 @@ namespace Maidchan.Workflow
 
     private void LoadStepClass()
     {
-      var allStepClass = typeof(StepTypeAttribute).Assembly.GetTypes();
+      var allStepClass = Assembly.GetEntryAssembly().GetTypes().AsEnumerable();
+      allStepClass = allStepClass.Concat(Assembly.GetExecutingAssembly().GetTypes().AsEnumerable());
+
       lock(stepClassDict) 
       {
         foreach(var stepClass in allStepClass) 

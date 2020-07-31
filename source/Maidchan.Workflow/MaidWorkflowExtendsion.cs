@@ -48,7 +48,9 @@ namespace Maidchan.Workflow
     public static IApplicationBuilder UseMaidWorkflow(this IApplicationBuilder application)
     {
       var host = application.ApplicationServices.GetService<IWorkflowHost>();
-      host.RegisterWorkflow<Workflow.TaskWorkflow, TaskDataModel>();
+      host.OnStepError += (instance, step, ex) => {
+        step.ErrorBehavior = WorkflowCore.Models.WorkflowErrorHandling.Terminate;
+      };
       host.Start();
 
       return application;

@@ -19,6 +19,12 @@ namespace Maidchan.Workflow
         Task Execute(string workflowId, object data = null, string reference = null);
 
         ///<summary>
+        /// Execute workflow by If the workflow is not registered It will scan workflow from external storage
+        ///</summary>
+        /// <param name="workflowId">Identity of workflow</param>
+        Task ExecuteLazy(string workflowId, object data = null, string reference = null);
+
+        ///<summary>
         /// Get workflow difinition by workflow id in Json format
         ///</summary>
         /// <param name="workflowId">Identity of workflow</param>

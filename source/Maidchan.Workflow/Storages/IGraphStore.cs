@@ -11,6 +11,8 @@ namespace Maidchan.Workflow.Storages
 
         Task<string> Get(string workflowId, int version);
 
+        Task<string> Get(string workflowId);
+
         IEnumerable<string> GetWorkflowList();
     }
 }

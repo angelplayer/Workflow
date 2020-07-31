@@ -62,35 +62,57 @@ namespace Maidchan.Workflow
       }
       catch (WorkflowNotRegisteredException notRegister)
       {
+        await controller.TerminateWorkflow(workflowId);
         throw new WorkflowException(WorkflowException.Warning, notRegister.Message);
       }
       catch (System.Exception ex)
       {
+        await controller.TerminateWorkflow(workflowId);
         throw new WorkflowException(WorkflowException.Unknown, ex.Message);
       }
+    }
+
+    public async Task ExecuteLazy(string workflowId, object data = null, string reference = null)
+    {
+      var def = await this.graphSore.Get(workflowId);
+      if(!string.IsNullOrEmpty(def))
+      {
+        EnsureRegister(def);
+      }
+      await Execute(workflowId, data, reference);
     }
 
     public async ValueTask<string> GetDefinition(string workflowId)
     {
       var model = registry.GetDefinition(workflowId);
-      if (model == null) return "Not registered";
-
-      var definition = await graphSore.Get(model.Id, model.Version);
+      var definition = model == null ? await graphSore.Get(workflowId) : await graphSore.Get(model.Id, model.Version);
       return definition;
     }
 
     public async ValueTask<string> SaveWorkflow(string definition)
     {
-      JsonDocument.Parse(definition, new JsonDocumentOptions { AllowTrailingCommas = true });
-      var model = definitionLoader.LoadDefinition(definition, Deserializers.Json);
-      if (!registry.IsRegistered(model.Id, model.Version))
-      {
-        registry.RegisterWorkflow(model);
-      }
-
+      var model = EnsureRegister(definition);
       await graphSore.Save(model.Id, definition, model.Version);
+      return model?.Id;
+    }
 
-      return model.Id;
+    WorkflowCore.Models.WorkflowDefinition EnsureRegister(string definition)
+    {
+      JsonDocument.Parse(definition, new JsonDocumentOptions { AllowTrailingCommas = true });
+
+      try {
+        var model = definitionLoader.LoadDefinition(definition, Deserializers.Json);
+
+        if (!registry.IsRegistered(model.Id, model.Version))
+        {
+          registry.RegisterWorkflow(model);
+        }
+        return model;
+      } catch(System.Exception)
+      {
+        // Ignore the workflow is registered
+      }
+      return null;
     }
 
     public IEnumerable<string> GetAllStepType()
@@ -111,12 +133,11 @@ namespace Maidchan.Workflow
       var list = new HashSet<string>();
       foreach(var item in enumerate) {
         var path = item.Split('.');
-        if(registry.IsRegistered(path[0], int.Parse(path[1])))
+        var version = int.Parse(path[1]);
+
+        if(!list.Contains(path[0])) 
         {
-          if(!list.Contains(path[0])) 
-          {
-            list.Add(path[0]);
-          }
+          list.Add(path[0]);
         }
       }
 
@@ -126,5 +147,6 @@ namespace Maidchan.Workflow
     public IDictionary<string, System.Type> ExportStepType() {
       return stepClassDict.ToImmutableDictionary();
     }
+
   }
 }

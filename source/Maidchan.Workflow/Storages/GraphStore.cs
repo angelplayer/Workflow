@@ -22,16 +22,41 @@ namespace Maidchan.Workflow.Storages
             await Task.CompletedTask;
         }
 
+        public async Task<string> Get(string workflowId)
+        {
+          await Task.Yield();
+          var targetFiles = Directory.GetFiles(storeLocation, $"{workflowId}.*.workflow");
+
+          int latestVer = 0;
+          string latestfile = null;
+
+          foreach(var f in targetFiles)
+          {
+            var path = Path.GetFileName(f).Split('.');
+            int.TryParse(path[1], out var version);
+            if(latestVer < version)
+            {
+              latestfile = f;
+            }
+          }
+          return ReadDef(latestfile);
+        }
+
+        string ReadDef(string path)
+        {
+          if (!string.IsNullOrEmpty(path) && File.Exists(path))
+          {
+            var text = File.ReadAllText(path);
+            return text;
+          }
+          return string.Empty;
+        }
+
         public async Task<string> Get(string workflowId, int version)
         {
+            await Task.Yield();
             var path = Path.Combine(storeLocation, $"{workflowId}.{version}.workflow");
-            if (File.Exists(path))
-            {
-                var text = File.ReadAllText(path);
-                return await Task.FromResult(text);
-            }
-
-            return await Task.FromResult(string.Empty);
+            return ReadDef(path);
         }
 
         public async Task Save(string workflowId, string definition, int version)
@@ -58,7 +83,6 @@ namespace Maidchan.Workflow.Storages
             Directory.CreateDirectory(storeLocation);
           }
 
-          // var files = Directory.GetFiles(storeLocation,"*.workflow");
           var files = Directory.GetFiles(storeLocation,"*.workflow");
           foreach(var f in files) 
           {
